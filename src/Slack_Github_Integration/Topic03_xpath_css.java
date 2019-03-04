@@ -1,5 +1,6 @@
 package Slack_Github_Integration;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
@@ -71,13 +72,14 @@ public class Topic03_xpath_css {
 		Assert.assertEquals(passwordIncorrect, "Invalid login or password.");
 	}
 	@Test
-	public void TC_05_CreateAnAccount() {
+	public void TC_05_CreateAnAccount()	throws InterruptedException {
 		driver.findElement(By.xpath("//div[@class='footer']//a[text()='My Account']")).click();
 		driver.findElement(By.xpath("//a[@title='Create an Account']")).click();
-		driver.findElement(By.id("firstname")).sendKeys("Hoi15");
+		driver.findElement(By.id("firstname")).sendKeys("Hoitest");
 		driver.findElement(By.id("middlename")).sendKeys("");
-		driver.findElement(By.id("lastname")).sendKeys("HoiNT15");
-		driver.findElement(By.id("email_address")).sendKeys("hoint15@mailinator.com");
+		driver.findElement(By.id("lastname")).sendKeys("Hoitest");
+		String uuid = UUID.randomUUID().toString();
+		driver.findElement(By.id("email_address")).sendKeys(uuid + "@mailinator.com");
 		driver.findElement(By.id("password")).sendKeys("123456");
 		driver.findElement(By.id("confirmation")).sendKeys("123456");
 		driver.findElement(By.xpath("//button[@title='Register']")).click();
@@ -90,9 +92,9 @@ public class Topic03_xpath_css {
 		String LogoutSuccess = driver.findElement(By.className("page-title")).getText();
 		Assert.assertEquals(LogoutSuccess, "YOU ARE NOW LOGGED OUT");
 		
-		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-		driver.manage().window().maximize();
-		driver.get("http://live.guru99.com/index.php/");
+		Thread.sleep(7000);
+		String homePageTitle = driver.getTitle();
+		Assert.assertEquals(homePageTitle, "Home page");
 		
 		
 	}
