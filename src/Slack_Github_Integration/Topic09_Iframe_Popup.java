@@ -7,94 +7,72 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.junit.Assert;
+import org.openqa.selenium.JavascriptExecutor;
 
 public class Topic09_Iframe_Popup {
 	WebDriver driver;
-	private RemoteWebDriver javascript;
+	JavascriptExecutor javascript;
 	
 
 	@BeforeTest
 	public void beforeTest() {
 		driver = new FirefoxDriver();
+		javascript = ((JavascriptExecutor) driver);
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 		driver.manage().window().maximize();
 		
 			}
 
 	@Test 
-	public void TC_01_()  {
+	public void TC_01_() throws Exception  {
 		driver.get("http://www.hdfcbank.com/");
-		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
-		List <WebElement> NotificationIframe = driver.findElements(By.xpath("//iframe[@id='vizury-notification-template']"));
 		
-		int NotificationIframeSize = NotificationIframe.size();
+		List <WebElement> notificationIframe = driver.findElements(By.xpath("//div[@id='parentdiv']//img[@class='popupbanner']")); 
+		int notificationIframeSize = notificationIframe.size();
 		
-		if (NotificationIframeSize > 0) {
-			driver.switchTo().frame(NotificationIframe.get(0));
-			
-			Assert.assertTrue(driver.findElement(By.xpath("//div[@id='container-div']/img")).isDisplayed());
-			javascript.executeScript("arguments[0].click();", driver.findElement(By.xpath("//div[@id='div-close']")));
-			
-			
-			WebElement lookingForIframe = driver.findElement(By.xpath("//div[@class='flipBannerWrap']//iframe"));
-			driver.switchTo().frame(lookingForIframe);
-			
-			driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-			Assert.assertTrue(driver.findElement(By.xpath("//span[@id='messageText' and text()='What are you looking for?']")).isDisplayed());
-			
-			driver.switchTo().defaultContent();
-			WebElement SlidingBannerIframe = driver.findElement(By.xpath("//div[@class='slidingbanners']//iframe"));
-			driver.switchTo().frame(SlidingBannerIframe);
-			
-		// Check if sliding banner have 6 images
-		List <WebElement> SlidingBanner = driver.findElements(By.xpath("//div[@class='bannerimage-container']//img"));
-		System.out.println("Sliding banner = " + SlidingBanner.size());
-		Assert.assertEquals(SlidingBanner.size(), 6);
-		
-		for (WebElement imageElement : SlidingBanner) {
-			Assert.assertTrue(isImageLoadedSuccess(imageElement));
-			
-		//Check if flip banner have 8 images
-			driver.switchTo().defaultContent();
-		
-		List <WebElement> FlipBanner = driver.findElements(By.xpath("//div[@class='flipBanner']//img[@class='front icon']"));
-		System.out.println("Sliding banner = " + FlipBanner.size());
-		Assert.assertEquals(FlipBanner.size(), 8);
-				
-		for (WebElement FlipImage : FlipBanner) {
-		Assert.assertTrue(isImageLoadedSuccess(imageElement));
-		Assert.assertTrue(FlipImage.isDisplayed());
-		
-		}
-		}
+		if (notificationIframeSize > 0){
+			javascript.executeScript("arguments[0].click()", driver.findElement(By.xpath("//img[@class='popupCloseButton']")));
 		}
 		
+		WebElement lookingForIframe = driver.findElement(By.xpath("//div[@class='flipBannerWrap']//iframe"));
 		
-		//NotiPopup: //iframe[@id='vizury-notification-template']
-		//closeIcon: //div[@id='div-close']
-		// flipbanner lookingfor: //div[@class='flipBannerWrap']//iframe
-		//sliding banner: //div[@class='bannerimage-container']//img
-		//Verify slidingbanner have 6 images:
+		driver.switchTo().frame(lookingForIframe);
 		
+		Assert.assertTrue(driver.findElement(By.xpath("//span[@id='messageText' and text()='What are you looking for?']")).isDisplayed());
 		
+		driver.switchTo().defaultContent();
+		
+		WebElement slidingBannerIframe = driver.findElement(By.xpath("//div[@class='slidingbanners']//iframe"));
+		
+		driver.switchTo().frame(slidingBannerIframe);
+		
+		List <WebElement> bannerImage = driver.findElements(By.xpath("//img[@class='bannerimage']"));
+		Assert.assertEquals(bannerImage.size(), 6);
+		
+		for (WebElement image:bannerImage){
+			Assert.assertTrue(isImageLoadedSuccess(image));
+			}
+		
+		driver.switchTo().defaultContent();
+		List <WebElement> flipBanner = driver.findElements(By.xpath("//div[@class='flipBanner']//img[@class='front icon']"));
+		Assert.assertEquals(flipBanner.size(), 8);
+		
+		for (WebElement image:flipBanner){
+			Assert.assertTrue(isImageLoadedSuccess(image));
+			Assert.assertTrue(image.isDisplayed());
+			
+			}
 	}
 	
-	public boolean isImageLoadedSuccess(WebElement imageElement) {
+	
+		public boolean isImageLoadedSuccess (WebElement imageElement){
 		return (boolean) javascript.executeScript("return arguments[0].complete && typeof arguments[0].naturalWidth != \"undefined\" && arguments[0].naturalWidth > 0", imageElement);
-	
-	}
+		}
 
-	public void TC_02_() {
-		;
-		
-	}
-	
-	
 		
 	
 	@AfterTest
